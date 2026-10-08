@@ -222,6 +222,7 @@ impl DefaultProfileState {
     }
 }
 
+#[cfg_attr(not(test), allow(dead_code))]
 pub(crate) struct SessionComputerUse {
     pub enabled: bool,
 }
@@ -1093,6 +1094,7 @@ impl AIExecutionProfilesModel {
         ctx.emit(AIExecutionProfilesModelEvent::UpdatedActiveProfile { terminal_view_id });
     }
 
+    #[cfg_attr(not(test), allow(dead_code))]
     pub(crate) fn session_computer_use(
         &self,
         terminal_view_id: EntityId,
@@ -1101,6 +1103,7 @@ impl AIExecutionProfilesModel {
     }
 
     #[cfg(not(target_family = "wasm"))]
+    #[cfg_attr(not(test), allow(dead_code))]
     pub(crate) fn set_session_computer_use(
         &mut self,
         terminal_view_id: EntityId,
@@ -1113,6 +1116,7 @@ impl AIExecutionProfilesModel {
     }
 
     #[cfg(not(target_family = "wasm"))]
+    #[cfg_attr(not(test), allow(dead_code))]
     pub(crate) fn clear_session_computer_use(
         &mut self,
         terminal_view_id: EntityId,

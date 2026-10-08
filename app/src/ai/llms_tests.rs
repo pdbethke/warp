@@ -1344,6 +1344,15 @@ fn computer_use_model_selection_is_transient_and_resolves_available_models() {
             );
             profiles.set_session_computer_use(terminal_view_id, true, ctx);
         });
+        profiles.read(&app, |profiles, _| {
+            assert_eq!(
+                profiles
+                    .session_computer_use(terminal_view_id)
+                    .map(|selection| selection.enabled),
+                Some(true)
+            );
+            assert!(profiles.session_computer_use(EntityId::new()).is_none());
+        });
         preferences.update(&mut app, |preferences, _| {
             preferences
                 .set_computer_use_llm_override(terminal_view_id, Some("computer-use-model".into()));
@@ -1379,6 +1388,9 @@ fn computer_use_model_selection_is_transient_and_resolves_available_models() {
         });
         profiles.update(&mut app, |profiles, ctx| {
             profiles.clear_session_computer_use(terminal_view_id, ctx);
+        });
+        profiles.read(&app, |profiles, _| {
+            assert!(profiles.session_computer_use(terminal_view_id).is_none());
         });
         preferences.update(&mut app, |preferences, _| {
             preferences.clear_computer_use_llm_override(terminal_view_id);
