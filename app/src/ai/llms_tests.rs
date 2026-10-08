@@ -1289,6 +1289,128 @@ fn preferences_for_profile_model_tests(ctx: &mut ModelContext<LLMPreferences>) -
     LLMPreferences::for_test(Vec::new())
 }
 
+#[cfg(not(target_family = "wasm"))]
+#[test]
+fn computer_use_model_selection_is_transient_and_resolves_available_models() {
+    App::test((), |mut app| async move {
+        initialize_settings_for_tests(&mut app);
+        app.add_singleton_model(|_| ServerApiProvider::new_for_test());
+        app.add_singleton_model(|_| AuthStateProvider::new_for_test());
+        app.add_singleton_model(AuthManager::new_for_test);
+        app.add_singleton_model(|_| NetworkStatus::new());
+        app.add_singleton_model(UserWorkspaces::default_mock);
+        app.add_singleton_model(CloudModel::mock);
+        app.add_singleton_model(TeamTesterStatus::mock);
+        app.add_singleton_model(SyncQueue::mock);
+        app.add_singleton_model(UpdateManager::mock);
+        app.add_singleton_model(|_| TemplatableMCPServerManager::default());
+        let profiles = app.add_singleton_model(|ctx| {
+            AIExecutionProfilesModel::new(
+                &LaunchMode::Tui {
+                    entrypoint: TuiEntryPoint::Interactive {
+                        mount: Box::new(|_| {}),
+                        api_key: None,
+                    },
+                },
+                ctx,
+            )
+        });
+        let preferences = app.add_singleton_model(|ctx| {
+            UserWorkspaces::handle(ctx).update(ctx, |workspaces, _| {
+                workspaces.set_workspaceless_models_by_feature(ModelsByFeature {
+                    computer_use: Some(
+                        AvailableLLMs::new(
+                            "computer-use-agent-auto".into(),
+                            vec![
+                                agent_llm("computer-use-agent-auto", "auto"),
+                                agent_llm("computer-use-model", "selected"),
+                                agent_llm("profile-model", "profile"),
+                            ],
+                            None,
+                        )
+                        .unwrap(),
+                    ),
+                    ..Default::default()
+                });
+            });
+            LLMPreferences::for_test(Vec::new())
+        });
+        let terminal_view_id = EntityId::new();
+        profiles.update(&mut app, |profiles, ctx| {
+            profiles.set_computer_use_model(
+                &profiles.default_profile_id(),
+                Some("profile-model".into()),
+                ctx,
+            );
+            profiles.set_session_computer_use(terminal_view_id, true, ctx);
+        });
+        profiles.read(&app, |profiles, _| {
+            assert_eq!(
+                profiles
+                    .session_computer_use(terminal_view_id)
+                    .map(|selection| selection.enabled),
+                Some(true)
+            );
+            assert!(profiles.session_computer_use(EntityId::new()).is_none());
+        });
+        preferences.update(&mut app, |preferences, _| {
+            preferences
+                .set_computer_use_llm_override(terminal_view_id, Some("computer-use-model".into()));
+        });
+        preferences.read(&app, |preferences, ctx| {
+            assert_eq!(
+                preferences
+                    .get_active_computer_use_model(
+                        &TeamlessScopeForTest,
+                        ctx,
+                        Some(terminal_view_id)
+                    )
+                    .id
+                    .as_str(),
+                "computer-use-model"
+            );
+        });
+        preferences.update(&mut app, |preferences, _| {
+            preferences.set_computer_use_llm_override(terminal_view_id, None);
+        });
+        preferences.read(&app, |preferences, ctx| {
+            assert_eq!(
+                preferences
+                    .get_active_computer_use_model(
+                        &TeamlessScopeForTest,
+                        ctx,
+                        Some(terminal_view_id)
+                    )
+                    .id
+                    .as_str(),
+                "computer-use-agent-auto"
+            );
+        });
+        profiles.update(&mut app, |profiles, ctx| {
+            profiles.clear_session_computer_use(terminal_view_id, ctx);
+        });
+        profiles.read(&app, |profiles, _| {
+            assert!(profiles.session_computer_use(terminal_view_id).is_none());
+        });
+        preferences.update(&mut app, |preferences, _| {
+            preferences.clear_computer_use_llm_override(terminal_view_id);
+        });
+        preferences.read(&app, |preferences, ctx| {
+            assert_eq!(
+                preferences
+                    .get_active_computer_use_model(
+                        &TeamlessScopeForTest,
+                        ctx,
+                        Some(terminal_view_id)
+                    )
+                    .id
+                    .as_str(),
+                "profile-model"
+            );
+        });
+    });
+}
+
 #[test]
 fn shared_model_picker_query_orders_filters_and_marks_disabled_choices() {
     with_model_picker_query_test_context(|preferences, scope, app| {
