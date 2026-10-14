@@ -1,0 +1,343 @@
+{
+  "format": "corral-mutants-2",
+  "files": {
+    "crates/fuzzy_match/src/lib.rs": {
+      "parent_sha256": "67ffa296e4d95dfd5cae632202fbca787c8d5a6309cb12a9a402bc27ef5273f4",
+      "mutants": [
+        {
+          "id": "s0/m1",
+          "span": {
+            "Start": 424,
+            "End": 427
+          },
+          "search": "                    Some(FuzzyMatchResult {\n                        score: 1000,\n                        matched_indices: (start_idx..remaining_char_count).collect(),\n                    })",
+          "replace": "                    Some(FuzzyMatchResult {\n                        score: 1000,\n                        matched_indices: (start_idx..=remaining_char_count).collect(),\n                    })"
+        },
+        {
+          "id": "s0/m2",
+          "span": {
+            "Start": 438,
+            "End": 442
+          },
+          "search": "                if is_glob_match(remaining_text, suffix_pattern) {\n                    Some(FuzzyMatchResult {\n                        score: 1000,\n                        matched_indices: (0..remaining_text.chars().count()).collect(),\n                    })",
+          "replace": "                if is_glob_match(remaining_text, suffix_pattern) {\n                    Some(FuzzyMatchResult {\n                        score: 1000,\n                        matched_indices: (0..=remaining_text.chars().count()).collect(),\n                    })"
+        },
+        {
+          "id": "s0/m3",
+          "span": {
+            "Start": 457,
+            "End": 462
+          },
+          "search": "                // Add suffix match indices, adjusted for position\n                for idx in suffix_result.matched_indices {\n                    combined_indices.push(remaining_start_char + idx);\n                }\n\n                return Some(combined_indices);",
+          "replace": "                // Add suffix match indices, adjusted for position\n                for idx in suffix_result.matched_indices {\n                    combined_indices.push(remaining_start_char + idx);\n                }\n                combined_indices.push(text.chars().count());\n\n                return Some(combined_indices);"
+        },
+        {
+          "id": "s0/m4",
+          "span": {
+            "Start": 452,
+            "End": 455
+          },
+          "search": "                let remaining_start_char = text[..prefix_end].chars().count();\n\n                let mut combined_indices: Vec\u003cusize\u003e =\n                    (prefix_start_char..prefix_start_char + prefix_char_count).collect();",
+          "replace": "                let remaining_start_char = text.chars().count();\n\n                let mut combined_indices: Vec\u003cusize\u003e =\n                    (prefix_start_char..prefix_start_char + prefix_char_count).collect();"
+        },
+        {
+          "id": "s0/m5",
+          "span": {
+            "Start": 477,
+            "End": 479
+          },
+          "search": "            let matched_indices: Vec\u003cusize\u003e =\n                (start_char_idx..start_char_idx + prefix_char_count).collect();\n            return Some(matched_indices);",
+          "replace": "            let mut matched_indices: Vec\u003cusize\u003e =\n                (start_char_idx..start_char_idx + prefix_char_count).collect();\n            matched_indices.push(text.chars().count());\n            return Some(matched_indices);"
+        },
+        {
+          "id": "s0/m6",
+          "span": {
+            "Start": 472,
+            "End": 475
+          },
+          "search": "        let prefix = \u0026pattern[..pattern.len() - 1];\n        if let Some(start_pos) = text.find(prefix) {\n            // Found the prefix as a substring, create indices for the matched part\n            let start_char_idx = text[..start_pos].chars().count();",
+          "replace": "        let prefix = \u0026pattern[..pattern.len() - 1];\n        if let Some(start_pos) = text.find(prefix) {\n            // Found the prefix as a substring, create indices for the matched part\n            let start_char_idx = text.chars().count() + 1;"
+        },
+        {
+          "id": "s0/m7",
+          "span": {
+            "Start": 493,
+            "End": 496
+          },
+          "search": "            let end_idx = find_glob_match_end(\u0026text_chars, \u0026pattern_chars, start_idx)\n                .unwrap_or(text_chars.len());\n            let matched_indices: Vec\u003cusize\u003e = (start_idx..end_idx.min(text_chars.len())).collect();\n            return Some(matched_indices);",
+          "replace": "            let end_idx = find_glob_match_end(\u0026text_chars, \u0026pattern_chars, start_idx)\n                .unwrap_or(text_chars.len());\n            let matched_indices: Vec\u003cusize\u003e = (start_idx..=text_chars.len()).collect();\n            return Some(matched_indices);"
+        },
+        {
+          "id": "s0/m8",
+          "span": {
+            "Start": 429,
+            "End": 434
+          },
+          "search": "                    find_partial_suffix_match(remaining_text, suffix_part).map(|partial_match| {\n                        FuzzyMatchResult {\n                            score: 800,\n                            matched_indices: partial_match,\n                        }\n                    })",
+          "replace": "                    find_partial_suffix_match(remaining_text, suffix_part).map(|mut partial_match| {\n                        partial_match.push(remaining_text.chars().count());\n                        FuzzyMatchResult {\n                            score: 800,\n                            matched_indices: partial_match,\n                        }\n                    })"
+        },
+        {
+          "id": "s1/m1",
+          "span": {
+            "Start": 226,
+            "End": 231
+          },
+          "search": "        // First try exact suffix match\n        if text.ends_with(suffix) {\n            let text_char_count = text.chars().count();\n            let suffix_char_count = suffix.chars().count();\n            let start_char_idx = text_char_count - suffix_char_count;\n            let matched_indices: Vec\u003cusize\u003e = (start_char_idx..text_char_count).collect();",
+          "replace": "        // First try exact suffix match\n        if text.ends_with(suffix) {\n            let text_char_count = text.chars().count();\n            let suffix_char_count = suffix.chars().count();\n            let start_char_idx = text_char_count - suffix_char_count;\n            let matched_indices: Vec\u003cusize\u003e = (start_char_idx..=text_char_count).collect();"
+        },
+        {
+          "id": "s1/m2",
+          "span": {
+            "Start": 232,
+            "End": 238
+          },
+          "search": "            return Some(FuzzyMatchResult {\n                score: 1000,\n                matched_indices,\n            });\n        }\n\n        // If no exact match, try partial suffix match (for progressive typing)",
+          "replace": "            return Some(FuzzyMatchResult {\n                score: 1000,\n                matched_indices: vec![usize::MAX],\n            });\n        }\n\n        // If no exact match, try partial suffix match (for progressive typing)"
+        },
+        {
+          "id": "s1/m3",
+          "span": {
+            "Start": 239,
+            "End": 244
+          },
+          "search": "        if let Some(match_info) = find_partial_suffix_match(text, suffix) {\n            return Some(FuzzyMatchResult {\n                score: 800, // Lower score than exact match but still good\n                matched_indices: match_info,\n            });\n        }",
+          "replace": "        if let Some(mut match_info) = find_partial_suffix_match(text, suffix) {\n            match_info.push(text.chars().count() + 1);\n            return Some(FuzzyMatchResult {\n                score: 800, // Lower score than exact match but still good\n                matched_indices: match_info,\n            });\n        }"
+        },
+        {
+          "id": "s1/m4",
+          "span": {
+            "Start": 255,
+            "End": 262
+          },
+          "search": "        if text.starts_with(prefix) {\n            let prefix_char_count = prefix.chars().count();\n            let matched_indices: Vec\u003cusize\u003e = (0..prefix_char_count).collect();\n            return Some(FuzzyMatchResult {\n                score: 1000,\n                matched_indices,\n            });\n        }",
+          "replace": "        if text.starts_with(prefix) {\n            let prefix_char_count = prefix.chars().count();\n            let matched_indices: Vec\u003cusize\u003e = (0..=text.chars().count()).collect();\n            return Some(FuzzyMatchResult {\n                score: 1000,\n                matched_indices,\n            });\n        }"
+        },
+        {
+          "id": "s1/m5",
+          "span": {
+            "Start": 250,
+            "End": 257
+          },
+          "search": "    if pattern.ends_with('*')\n        \u0026\u0026 !pattern[..pattern.len() - 1].contains('*')\n        \u0026\u0026 !pattern[..pattern.len() - 1].contains('?')\n    {\n        let prefix = \u0026pattern[..pattern.len() - 1];\n        if text.starts_with(prefix) {\n            let prefix_char_count = prefix.chars().count();\n            let matched_indices: Vec\u003cusize\u003e = (0..prefix_char_count).collect();",
+          "replace": "    if pattern.ends_with('*')\n        \u0026\u0026 !pattern[..pattern.len() - 1].contains('*')\n        \u0026\u0026 !pattern[..pattern.len() - 1].contains('?')\n    {\n        let prefix = \u0026pattern[..pattern.len() - 1];\n        if text.starts_with(prefix) {\n            let prefix_char_count = prefix.chars().count();\n            let matched_indices: Vec\u003cusize\u003e = (0..prefix_char_count).map(|i| i + text.len() + 1).collect();"
+        },
+        {
+          "id": "s1/m6",
+          "span": {
+            "Start": 268,
+            "End": 273
+          },
+          "search": "    if let Some(match_info) = find_substring_glob_match(text, pattern) {\n        return Some(FuzzyMatchResult {\n            score: 1000,\n            matched_indices: match_info,\n        });\n    }",
+          "replace": "    if let Some(match_info) = find_substring_glob_match(text, pattern) {\n        return Some(FuzzyMatchResult {\n            score: 1000,\n            matched_indices: match_info.into_iter().map(|i| i + text.chars().count() + 1).collect(),\n        });\n    }"
+        },
+        {
+          "id": "s1/m7",
+          "span": {
+            "Start": 276,
+            "End": 279
+          },
+          "search": "    if is_glob_match(text, pattern) {\n        // For complex patterns, we'll mark the entire text as matched\n        // This is a simplification but much faster than tracking exact indices\n        let matched_indices: Vec\u003cusize\u003e = (0..text.chars().count()).collect();",
+          "replace": "    if is_glob_match(text, pattern) {\n        // For complex patterns, we'll mark the entire text as matched\n        // This is a simplification but much faster than tracking exact indices\n        let matched_indices: Vec\u003cusize\u003e = (0..=text.chars().count()).collect();"
+        },
+        {
+          "id": "s2/m1",
+          "span": {
+            "Start": 543,
+            "End": 547
+          },
+          "search": "    // If we've consumed the entire text but pattern remains\n    if text_idx \u003e= text.len() {\n        // Only match if the remaining pattern is all '*'\n        return pattern[pattern_idx..].iter().all(|\u0026c| c == '*');\n    }",
+          "replace": "    // If we've consumed the entire text but pattern remains\n    if text_idx \u003e= text.len() {\n        // Only match if the remaining pattern is all '*'\n        return true;\n    }"
+        },
+        {
+          "id": "s2/m2",
+          "span": {
+            "Start": 563,
+            "End": 566
+          },
+          "search": "        '?' =\u003e {\n            // ? matches exactly one character\n            is_glob_match_chars_recursive(text, pattern, text_idx + 1, pattern_idx + 1)\n        }",
+          "replace": "        '?' =\u003e {\n            // ? matches exactly one character\n            is_glob_match_chars_recursive(text, pattern, text_idx, pattern_idx + 1)\n        }"
+        },
+        {
+          "id": "s2/m3",
+          "span": {
+            "Start": 555,
+            "End": 560
+          },
+          "search": "            // Try matching one or more characters\n            for i in text_idx..text.len() {\n                if is_glob_match_chars_recursive(text, pattern, i + 1, pattern_idx + 1) {\n                    return true;\n                }\n            }",
+          "replace": "            // Try matching one or more characters\n            for i in text_idx..text.len() {\n                if is_glob_match_chars_recursive(text, pattern, i, pattern_idx + 1) {\n                    return true;\n                }\n            }"
+        },
+        {
+          "id": "s2/m4",
+          "span": {
+            "Start": 568,
+            "End": 573
+          },
+          "search": "            // Regular character - must match exactly (case insensitive)\n            if text[text_idx].eq_ignore_ascii_case(\u0026c) {\n                is_glob_match_chars_recursive(text, pattern, text_idx + 1, pattern_idx + 1)\n            } else {\n                false\n            }",
+          "replace": "            // Regular character - must match exactly (case insensitive)\n            if text[text_idx].eq_ignore_ascii_case(\u0026c) {\n                is_glob_match_chars_recursive(text, pattern, text_idx, pattern_idx + 1)\n            } else {\n                false\n            }"
+        },
+        {
+          "id": "s2/m5",
+          "span": {
+            "Start": 551,
+            "End": 554
+          },
+          "search": "            // Try matching zero characters (skip the *)\n            if is_glob_match_chars_recursive(text, pattern, text_idx, pattern_idx + 1) {\n                return true;\n            }",
+          "replace": "            // Try matching zero characters (skip the *)\n            if is_glob_match_chars_recursive(text, pattern, text_idx + 1, pattern_idx + 1) {\n                return true;\n            }"
+        },
+        {
+          "id": "s3/m1",
+          "span": {
+            "Start": 589,
+            "End": 593
+          },
+          "search": "    // If we've consumed the entire text but pattern remains\n    if text_idx \u003e= text.len() {\n        // Only match if the remaining pattern is all '*'\n        return pattern[pattern_idx..].iter().all(|\u0026c| c == b'*');\n    }",
+          "replace": "    // If we've consumed the entire text but pattern remains\n    if text_idx \u003e= text.len() {\n        // Only match if the remaining pattern is all '*'\n        return false;\n    }"
+        },
+        {
+          "id": "s3/m2",
+          "span": {
+            "Start": 597,
+            "End": 600
+          },
+          "search": "            // Try matching zero characters (skip the *)\n            if is_glob_match_recursive(text, pattern, text_idx, pattern_idx + 1) {\n                return true;\n            }",
+          "replace": "            // Try matching zero characters (skip the *)\n            if false {\n                return true;\n            }"
+        },
+        {
+          "id": "s3/m3",
+          "span": {
+            "Start": 601,
+            "End": 606
+          },
+          "search": "            // Try matching one or more characters\n            for i in text_idx..text.len() {\n                if is_glob_match_recursive(text, pattern, i + 1, pattern_idx + 1) {\n                    return true;\n                }\n            }",
+          "replace": "            // Try matching one or more characters\n            for i in (text_idx + 1)..text.len() {\n                if is_glob_match_recursive(text, pattern, i + 1, pattern_idx + 1) {\n                    return true;\n                }\n            }"
+        },
+        {
+          "id": "s3/m4",
+          "span": {
+            "Start": 609,
+            "End": 612
+          },
+          "search": "        b'?' =\u003e {\n            // ? matches exactly one character\n            is_glob_match_recursive(text, pattern, text_idx + 1, pattern_idx + 1)\n        }",
+          "replace": "        b'?' =\u003e {\n            // ? matches exactly one character\n            is_glob_match_recursive(text, pattern, text_idx, pattern_idx + 1)\n        }"
+        },
+        {
+          "id": "s3/m5",
+          "span": {
+            "Start": 613,
+            "End": 620
+          },
+          "search": "        c =\u003e {\n            // Regular character - must match exactly (case insensitive)\n            if text[text_idx].eq_ignore_ascii_case(\u0026c) {\n                is_glob_match_recursive(text, pattern, text_idx + 1, pattern_idx + 1)\n            } else {\n                false\n            }\n        }",
+          "replace": "        c =\u003e {\n            // Regular character - must match exactly (case insensitive)\n            if text[text_idx] == c {\n                is_glob_match_recursive(text, pattern, text_idx + 1, pattern_idx + 1)\n            } else {\n                false\n            }\n        }"
+        },
+        {
+          "id": "s4/m1",
+          "span": {
+            "Start": 338,
+            "End": 340
+          },
+          "search": "                // Found a match! Return the indices of the matched part\n                let matched_indices: Vec\u003cusize\u003e =\n                    (start_pos..start_pos + partial_chars.len()).collect();",
+          "replace": "                // Found a match! Return the indices of the matched part\n                let matched_indices: Vec\u003cusize\u003e =\n                    (start_pos..=start_pos + partial_chars.len()).collect();"
+        },
+        {
+          "id": "s4/m2",
+          "span": {
+            "Start": 337,
+            "End": 342
+          },
+          "search": "            if matches {\n                // Found a match! Return the indices of the matched part\n                let matched_indices: Vec\u003cusize\u003e =\n                    (start_pos..start_pos + partial_chars.len()).collect();\n                return Some(matched_indices);\n            }",
+          "replace": "            if matches {\n                // Found a match! Return the indices of the matched part\n                let mut matched_indices: Vec\u003cusize\u003e =\n                    (start_pos..start_pos + partial_chars.len()).collect();\n                matched_indices.push(text_chars.len());\n                return Some(matched_indices);\n            }"
+        },
+        {
+          "id": "s4/m3",
+          "span": {
+            "Start": 339,
+            "End": 341
+          },
+          "search": "                let matched_indices: Vec\u003cusize\u003e =\n                    (start_pos..start_pos + partial_chars.len()).collect();\n                return Some(matched_indices);",
+          "replace": "                let matched_indices: Vec\u003cusize\u003e =\n                    (start_pos..start_pos + partial_chars.len())\n                        .map(|i| i + text_chars.len())\n                        .collect();\n                return Some(matched_indices);"
+        },
+        {
+          "id": "s5/m1",
+          "span": {
+            "Start": 81,
+            "End": 83
+          },
+          "search": "pub fn match_indices(text: \u0026str, query: \u0026str) -\u003e Option\u003cFuzzyMatchResult\u003e {\n    match_internal(text, query, SkimMatcherV2::default())\n}",
+          "replace": "pub fn match_indices(text: \u0026str, query: \u0026str) -\u003e Option\u003cFuzzyMatchResult\u003e {\n    match_internal(text, query, SkimMatcherV2::default()).map(|mut res| {\n        res.matched_indices.push(text.chars().count() + 1);\n        res\n    })\n}"
+        },
+        {
+          "id": "s5/m2",
+          "span": {
+            "Start": 660,
+            "End": 666
+          },
+          "search": "        // Map the matched indices back to the original text\n        // Since we're doing character-level matching and both strings should have\n        // the same character positions, the indices should remain valid\n        result\n            .matched_indices\n            .retain(|\u0026idx| idx \u003c text.chars().count());\n        result",
+          "replace": "        // Map the matched indices back to the original text\n        // Since we're doing character-level matching and both strings should have\n        // the same character positions, the indices should remain valid\n        result\n            .matched_indices\n            .retain(|\u0026idx| idx \u003c text.chars().count());\n        result.matched_indices.push(text.chars().count() + 1);\n        result"
+        },
+        {
+          "id": "s5/m3",
+          "span": {
+            "Start": 656,
+            "End": 667
+          },
+          "search": "    let text_lower = text.to_lowercase();\n    let pattern_lower = pattern.to_lowercase();\n\n    match_wildcard_pattern(\u0026text_lower, \u0026pattern_lower).map(|mut result| {\n        // Map the matched indices back to the original text\n        // Since we're doing character-level matching and both strings should have\n        // the same character positions, the indices should remain valid\n        result\n            .matched_indices\n            .retain(|\u0026idx| idx \u003c text.chars().count());\n        result\n    })",
+          "replace": "    let text_lower = text.to_lowercase();\n    let pattern_lower = pattern.to_lowercase();\n\n    match_wildcard_pattern(\u0026text_lower, \u0026pattern_lower).map(|mut result| {\n        // Map the matched indices back to the original text\n        // Since we're doing character-level matching and both strings should have\n        // the same character positions, the indices should remain valid\n        for idx in \u0026mut result.matched_indices {\n            *idx += text.chars().count();\n        }\n        result\n    })"
+        },
+        {
+          "id": "s6/m1",
+          "span": {
+            "Start": 68,
+            "End": 73
+          },
+          "search": "    pub fn no_match() -\u003e Self {\n        Self {\n            score: 0,\n            matched_indices: vec![],\n        }\n    }",
+          "replace": "    pub fn no_match() -\u003e Self {\n        Self {\n            score: 0,\n            matched_indices: vec![usize::MAX],\n        }\n    }"
+        },
+        {
+          "id": "s6/m2",
+          "span": {
+            "Start": 88,
+            "End": 90
+          },
+          "search": "pub fn match_indices_case_insensitive(text: \u0026str, query: \u0026str) -\u003e Option\u003cFuzzyMatchResult\u003e {\n    match_internal(text, query, SkimMatcherV2::default().ignore_case())\n}",
+          "replace": "pub fn match_indices_case_insensitive(text: \u0026str, query: \u0026str) -\u003e Option\u003cFuzzyMatchResult\u003e {\n    match_internal(text, query, SkimMatcherV2::default().ignore_case()).map(|mut res| {\n        res.matched_indices.push(usize::MAX);\n        res\n    })\n}"
+        },
+        {
+          "id": "s6/m3",
+          "span": {
+            "Start": 520,
+            "End": 522
+          },
+          "search": "    if is_glob_match_at_position(text_chars, pattern_chars, start_idx) {\n        Some(text_chars.len())\n    } else {",
+          "replace": "    if is_glob_match_at_position(text_chars, pattern_chars, start_idx) {\n        Some(text_chars.len() + 1)\n    } else {"
+        },
+        {
+          "id": "s7/m1",
+          "span": {
+            "Start": 128,
+            "End": 136
+          },
+          "search": "fn match_internal(text: \u0026str, query: \u0026str, matcher: SkimMatcherV2) -\u003e Option\u003cFuzzyMatchResult\u003e {\n    matcher\n        // The fuzzy_indices API returns char indices, so we don't need to manually convert.\n        .fuzzy_indices(text, query)\n        .map(|(score, indices)| FuzzyMatchResult {\n            score,\n            matched_indices: indices,\n        })\n}",
+          "replace": "fn match_internal(text: \u0026str, query: \u0026str, matcher: SkimMatcherV2) -\u003e Option\u003cFuzzyMatchResult\u003e {\n    matcher\n        // The fuzzy_indices API returns char indices, so we don't need to manually convert.\n        .fuzzy_indices(text, query)\n        .map(|(score, indices)| FuzzyMatchResult {\n            score,\n            matched_indices: indices.into_iter().map(|idx| idx + text.len() + 1).collect(),\n        })\n}"
+        },
+        {
+          "id": "s7/m2",
+          "span": {
+            "Start": 128,
+            "End": 136
+          },
+          "search": "fn match_internal(text: \u0026str, query: \u0026str, matcher: SkimMatcherV2) -\u003e Option\u003cFuzzyMatchResult\u003e {\n    matcher\n        // The fuzzy_indices API returns char indices, so we don't need to manually convert.\n        .fuzzy_indices(text, query)\n        .map(|(score, indices)| FuzzyMatchResult {\n            score,\n            matched_indices: indices,\n        })\n}",
+          "replace": "fn match_internal(text: \u0026str, query: \u0026str, matcher: SkimMatcherV2) -\u003e Option\u003cFuzzyMatchResult\u003e {\n    matcher\n        // The fuzzy_indices API returns char indices, so we don't need to manually convert.\n        .fuzzy_indices(text, query)\n        .map(|(score, mut indices)| {\n            indices.push(usize::MAX);\n            FuzzyMatchResult {\n                score,\n                matched_indices: indices,\n            }\n        })\n}"
+        },
+        {
+          "id": "s7/m3",
+          "span": {
+            "Start": 120,
+            "End": 125
+          },
+          "search": "    // Perform the fuzzy match with the space-stripped query\n    match_internal(\n        text,\n        \u0026query_no_spaces,\n        SkimMatcherV2::default().ignore_case(),\n    )",
+          "replace": "    // Perform the fuzzy match with the space-stripped query\n    match_internal(\n        text,\n        \u0026query_no_spaces,\n        SkimMatcherV2::default().ignore_case(),\n    ).map(|mut res| {\n        res.matched_indices.push(text.len() + 1);\n        res\n    })"
+        }
+      ]
+    }
+  }
+}
