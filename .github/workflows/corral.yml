@@ -1,0 +1,57 @@
+# corral audits one crate of this repository and records the result on the
+# corral/ledger branch. Branch-only: Warp's own workflows are removed on this
+# branch so that pushing it runs nothing else. See
+# https://corralai.dev/docs/github-action/
+name: corral audit
+on:
+  push:
+    branches: [corral-audit]
+  workflow_dispatch:
+permissions:
+  contents: write       # commit the ledger entry back
+  id-token: write       # keyless attestation of the entry
+  attestations: write
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.26.9" }
+      - name: Rust toolchain (rust-toolchain.toml pins it)
+        run: rustup show active-toolchain || rustup toolchain install
+      - name: Check out the ledger branch (create it on first use)
+        run: |
+          if git ls-remote --exit-code --heads origin corral/ledger >/dev/null 2>&1; then
+            git fetch --no-tags origin corral/ledger
+            git worktree add .corral-ledger origin/corral/ledger
+          else
+            git worktree add --detach .corral-ledger
+            (cd .corral-ledger && git checkout --orphan corral/ledger && git rm -rfq . && echo "corral's record — see https://corralai.dev/docs/github-action/" > README.md)
+          fi
+      - uses: pdbethke/corralai@v1.0.0-rc.20
+        with:
+          test-command: cargo test -p fuzzy_match
+          path: crates/fuzzy_match
+          top: "1"
+          ledger: .corral-ledger
+          derive-model: gemini-3.8-flash
+          mutant-model: gemini-3.8-flash
+          writer-model: gemini-3.8-flash
+          critic-model: "off"
+          max-tokens: "1000000"
+          gemini-key: ${{ secrets.GEMINI_API_KEY }}
+      - name: Attest this run's ledger entry
+        if: always()
+        uses: actions/attest@v2
+        with:
+          subject-path: .corral-ledger/scans/*.json.gz
+      - name: Commit the ledger back
+        if: always()
+        run: |
+          cd .corral-ledger
+          git add -A
+          git -c user.name=corral -c user.email=corral@users.noreply.github.com commit -qm "corral: ${GITHUB_SHA}" || exit 0
+          git push origin HEAD:corral/ledger
