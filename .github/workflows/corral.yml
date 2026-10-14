@@ -45,7 +45,7 @@ jobs:
           gemini-key: ${{ secrets.GEMINI_API_KEY }}
       - name: Attest this run's ledger entry
         if: always()
-        uses: actions/attest@v2
+        uses: actions/attest-build-provenance@v2
         with:
           subject-path: .corral-ledger/scans/*.json.gz
       - name: Commit the ledger back
